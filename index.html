@@ -35,19 +35,13 @@
         </div>
       </div>
     </nav>
-    <!-- 
-      - SAVE ORDER (LOCALHOST) => TO CALCULATE AT THE END OF THE DAY
-      - NEW ORDER => CREATE A NEW TABLE BODY AND ADD A NEW ROW
-      - TOTAL ORDERS => FETCH LOCALHOST TO SHOW AS A TABLE
-      - CLEAR ALL ORDERS => ERASE LOCALHOST
-      - DOWNEXCEL ?
-     -->
 
   </header>
   <main>
     <h1 id="title">Đơn hàng mới</h1>
     <button type="button" class="btn btn-primary ms-2" id="addNewGlassBtn" onclick="addNewGlass()">Thêm ly</button>
     <button type="button" class="btn btn-primary ms-2" id="saveOrderBtn" onclick="saveOrder()">Lưu đơn hàng</button>
+    <button type="button" class="btn btn-danger ms-2" hidden id="removeAllOrdersBtn" onclick="removeAllOrders()">Xóa tất cả đơn hàng</button>
     <table class="table table-striped">
       <thead>
         <tr>
@@ -64,16 +58,16 @@
 
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" data-bs-backdrop="static"
-      aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="modal1" tabindex="-1" data-bs-backdrop="static"
+      aria-labelledby="myModalTitle" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Thêm Topping</h5>
+            <h5 class="modal-title" id="myModalTitle"></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" 
               onclick="closeModal()"></button>
           </div>
-          <div class="modal-body" id="my-modal">
+          <div class="modal-body" id="modalBody" style="display:inline-block;">
 
           </div>
           <div class="modal-footer">
@@ -84,6 +78,26 @@
       </div>
     </div>
     <!-- END MODAL -->
+
+    <!-- Modal2 -->
+    <div class="modal fade" id="modal2" tabindex="-1" data-bs-backdrop="static"
+      aria-labelledby="myModalTitle2" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="myModalTitle2"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="modalBody2" style="display:inline-block;">
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END MODAL2 -->
 
     <div id="bottom">
       <h4>SỐ LƯỢNG LY: <span id="totalQuantity"></span></h4>

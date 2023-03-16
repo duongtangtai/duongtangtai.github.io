@@ -4,7 +4,7 @@ var glassNum = 0;
 var newRow;
 var allGlassOptions = ''
 var allTpOptions = ''
-var currentToppings =[];
+var currentToppings = [];
 var adjustToppingPrice = 0;
 var currentGlass;
 var toppingMap = new Map(); //glassId - array topping Ids
@@ -194,7 +194,7 @@ $(document).ready(function () {
 
 
     //init all glass types
-    for (var i = 0 ; i < glassArr.length ; i++) {
+    for (var i = 0; i < glassArr.length; i++) {
         allGlassOptions = allGlassOptions.concat(`
         <option value="${glassArr[i].id}|${glassArr[i].price}" ${i == 0 ? "selected" : ""}>
                 ${glassArr[i].description}</option>
@@ -202,15 +202,17 @@ $(document).ready(function () {
     }
 
     //init all topping types
-    for (var i = 0 ; i < tpArr.length ; i++) {
+    for (var i = 0; i < tpArr.length; i++) {
         allTpOptions = allTpOptions.concat(`
+            <div style="font-size:25px">
             <input class="form-check-input" type="checkbox" value="${tpArr[i].id}|${tpArr[i].price}"
                 id="${tpArr[i].id}" onclick=checkTopping(value)>
             <label class="form-check-label">${tpArr[i].description}</label>
+            </div>
         `)
     }
     //init modal
-    document.getElementById("my-modal").innerHTML = allTpOptions
+    document.getElementById("modalBody").innerHTML = allTpOptions
     addNewGlass()
 
 })
@@ -230,28 +232,30 @@ function addNewGlass() {
             </td>
             <td name="price" style="width:10%">${glassArr[0].price}</td>
             <td style="width:40%">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal1"
                     onclick=openModal(${glassNum})>
                     Add
                 </button>
                 <button type=button class="btn btn-danger" onclick="removeGlass(${glassNum})">Xóa</button>
             </td>
         </tr>
-        <div class="collapse" id="collapse${glassNum}" style="display:flex">
-            `
-    var c =
-          `
-        </div>
     `;
-    document.getElementById("table-body").innerHTML = document.getElementById("table-body").innerHTML + 
-        a + allGlassOptions + b + c;
+    document.getElementById("table-body").innerHTML = document.getElementById("table-body").innerHTML +
+        a + allGlassOptions + b;
     calculateTotalPrice()
 }
 
+function detailGlass(glassId) {
+    console.log("detailGlass!")
+
+}
+
 function removeGlass(glassId) {
-    document.getElementById(glassId).remove() 
-    toppingMap.delete(glassId) //delete from current glasses
-    calculateTotalPrice();
+    if (confirm("Xóa ly này?")) {
+        document.getElementById(glassId).remove()
+        toppingMap.delete(glassId) //delete from current glasses
+        calculateTotalPrice();
+    }
 }
 
 function saveOrder() {
@@ -262,17 +266,17 @@ function saveOrder() {
 
 function glassOnChange(glassId, value) {
     document.getElementById(glassId).querySelector(`option[selected]`).removeAttribute("selected")
-    document.getElementById(glassId).querySelector(`option[value='${value}']`).setAttribute("selected",'')
+    document.getElementById(glassId).querySelector(`option[value='${value}']`).setAttribute("selected", '')
     var glassPrice = value.substring(value.indexOf("|") + 1);
     var toppingPrice = 0;
     var toppings = (toppingMap.get(parseInt(glassId)) == undefined ? [] : toppingMap.get(parseInt(glassId)));
-    for (var i = 0 ; i < toppings.length ; i++) {
+    for (var i = 0; i < toppings.length; i++) {
         var value = document.getElementById(toppings[i]).value;
         toppingPrice += parseInt(parseInt(value.substring(value.indexOf("|") + 1)));
     }
 
     if (value != '') { //if not empty => get the glass money + toppings money
-        document.getElementById(glassId).querySelector("td[name='price']").innerHTML = 
+        document.getElementById(glassId).querySelector("td[name='price']").innerHTML =
             parseInt(glassPrice) + parseInt(toppingPrice);
     } else { //if empty just topping money
         document.getElementById(glassId).querySelector("td[name='price']").innerHTML = toppingPrice;
@@ -282,13 +286,21 @@ function glassOnChange(glassId, value) {
 
 function openModal(glassId) {
     currentGlass = glassId;
+    console.log("openModal for currentGlass: " + currentGlass)
+    var description = document.getElementById(currentGlass)
+        .querySelector("option[selected='']").innerHTML;
+    console.log("title: " + title)
+    document.getElementById("myModalTitle").innerHTML = "Thêm Topping cho ly số " + currentGlass + " (" + description + " )";
     //init toppings
-    if (toppingMap.get(currentGlass) != undefined) { //if this glass has toppings already
-        currentToppings = toppingMap.get(currentGlass);
+    if (toppingMap.get(glassId) != undefined) { //if this glass has toppings already
+        console.log("Has topping already=> init toppings")
+        currentToppings = toppingMap.get(glassId);
         //loop to checked toppings
-        for (var i = 0 ; i < currentToppings.length ; i++) {
-            document.getElementById(currentToppings[i]).setAttribute("checked",'');
+        for (var i = 0; i < currentToppings.length; i++) {
+            document.getElementById(currentToppings[i]).setAttribute("checked", '');
         }
+    } else {
+        console.log("Don't have toppings")
     }
 }
 
@@ -296,21 +308,23 @@ function saveModal() {
     console.log("save modal")
     //save toppings belonging to the glass
     toppingMap.set(currentGlass, currentToppings);
+    console.log("toppingMap after saved:")
+    console.log(toppingMap)
     //adjust the price of the glass 
     var currentPrice = document.getElementById(currentGlass).querySelector("td[name='price']").innerHTML;
     document.getElementById(currentGlass).querySelector("td[name='price']").innerHTML
-        = parseInt(currentPrice == '' ? 0 : currentPrice) 
+        = parseInt(currentPrice == '' ? 0 : currentPrice)
         + parseInt(adjustToppingPrice);
     console.log("set adjust topping price 0")
     adjustToppingPrice = 0;
     alert("Thêm topping thành công!")
-    $('#exampleModal').modal('toggle')
+    setTimeout(function () { }, 1000)
     calculateTotalPrice()
 }
 
 function closeModal() {
     console.log("close modal")
-    document.getElementById("my-modal").innerHTML = allTpOptions
+    document.getElementById("modalBody").innerHTML = allTpOptions
     currentToppings = [];
     adjustToppingPrice = 0;
     calculateTotalPrice()
@@ -335,7 +349,7 @@ function checkTopping(value) {
 function calculateTotalPrice() {
     var prices = document.querySelectorAll("td[name='price']");
     var totalPrice = 0;
-    for (var i = 0 ; i < prices.length ; i++) {
+    for (var i = 0; i < prices.length; i++) {
         totalPrice += parseInt(prices[i].innerHTML);
     }
     document.getElementById("totalPrice").innerHTML = totalPrice
@@ -350,22 +364,28 @@ function newOrder() {
 }
 
 function saveOrder() {
+    console.log("before save order: ")
+    console.log(toppingMap)
     if (confirm("Bạn có muốn lưu đơn hàng?")) {
         var order = [];
         //fetch all glasses by querySelectAll
-        for (var i = 1 ; i <= glassNum ; i++) {
+        for (var i = 1; i <= glassNum; i++) {
             if (document.getElementById(i) == undefined) {
                 continue;
             }
             var toppings = toppingMap.get(i) == undefined ? [] : toppingMap.get(i)
+            console.log("toppings: ")
+            console.log(toppings)
             // toppingID => toppingID|Price
+            var toppingData = [];
             toppings.forEach((e, index) => {
-                toppings[index] = document.getElementById(e).value
+                console.log("topping for each with e = " + e + ", index = ")
+                toppingData.push(document.getElementById(e).value)
             })
             var glassObj = {
-                id : i,
-                glass : document.getElementById(i).querySelector("option[selected]").value,
-                toppings : toppings
+                id: i,
+                glass: document.getElementById(i).querySelector("option[selected]").value,
+                toppings: toppingData
             }
             order.push(glassObj)
         }
@@ -388,6 +408,7 @@ function newOrder() {
     document.getElementById("column2").innerHTML = 'Tên';
     document.getElementById("addNewGlassBtn").removeAttribute("hidden")
     document.getElementById("saveOrderBtn").removeAttribute("hidden")
+    document.getElementById("removeAllOrdersBtn").setAttribute("hidden", '');
     glassNum = 0;
     currentToppings = [];
     toppingMap.clear();
@@ -399,30 +420,35 @@ function allOrders() {
     document.getElementById("title").innerHTML = "Tổng Đơn Hàng"
     document.getElementById("table-body").innerHTML = '';
     document.getElementById("column2").innerHTML = 'Số Ly';
-    document.getElementById("addNewGlassBtn").setAttribute("hidden",'')
-    document.getElementById("saveOrderBtn").setAttribute("hidden",'')
+    document.getElementById("addNewGlassBtn").setAttribute("hidden", '')
+    document.getElementById("saveOrderBtn").setAttribute("hidden", '')
+    document.getElementById("removeAllOrdersBtn").removeAttribute("hidden");
     //fetch local to get orders
-    totalOrders = localStorage.getItem("totalOrders") == undefined ? [] : 
+    totalOrders = localStorage.getItem("totalOrders") == undefined ? [] :
         JSON.parse(localStorage.getItem("totalOrders"));
     //loop to put in the table body
     console.log(totalOrders)
     var tableBody = '';
     var totalGlass = 0;
     var totalPrice = 0;
-    for (var i = 0 ; i < totalOrders.length ; i++) { //loop every order
+    for (var i = 0; i < totalOrders.length; i++) { //loop every order
         console.log("loop each order")
         var numOfGlass = 0;
         var orderPrice = 0;
         var currentOrder = totalOrders[i];
-        for (var j = 0 ; j < currentOrder.length ; j++) {
+        for (var j = 0; j < currentOrder.length; j++) {
             numOfGlass++;
             var glass = currentOrder[j].glass
             orderPrice += parseInt(glass.substring(glass.indexOf("|") + 1));
             //loop topping
             var currentToppings = currentOrder[j].toppings;
-            for (var a = 0 ; a < currentToppings.length ; a ++) {
-                console.log("loop top")
+            for (var a = 0; a < currentToppings.length; a++) {
+                console.log("currentTopping: " + currentToppings[a])
+                console.log("string to parse:")
+                console.log(currentToppings[a].substring(currentToppings[a].indexOf("|") + 1))
                 orderPrice += parseInt(currentToppings[a].substring(currentToppings[a].indexOf("|") + 1));
+                console.log()
+                console.log("order Price: " + orderPrice)
             }
         }
         console.log("numOfGlass: " + numOfGlass)
@@ -432,7 +458,7 @@ function allOrders() {
         //put them in the table
         var orderRow = `
         <tr>
-            <th>${i+1}</th>
+            <th>${i + 1}</th>
             <td>
                 ${numOfGlass}
             </td>
@@ -440,8 +466,9 @@ function allOrders() {
                 ${orderPrice}
             </td>
             <td>
-                <button type=button class="btn btn-success" onclick="orderDetail(${glassNum})">Xem</button>
-                <button type=button class="btn btn-danger" onclick="removeOrder(${glassNum})">Xóa</button>
+                <button type=button class="btn btn-success" onclick="orderDetail(${i + 1})"
+                data-bs-toggle="modal" data-bs-target="#modal2">Xem</button>
+                <button type=button class="btn btn-danger" onclick="removeOrder(${i + 1})">Xóa</button>
             </td>
         </tr>
         `;
@@ -451,3 +478,38 @@ function allOrders() {
     document.getElementById("totalQuantity").innerHTML = totalGlass
     document.getElementById("totalPrice").innerHTML = totalPrice
 }
+
+function removeOrder(orderNum) {
+    if (confirm("Xóa đơn hàng này?")) {
+        console.log("orderNum: " + orderNum)
+        //take all orders out, remove the orderNum, save, fetch data again
+        if (totalOrders.length == 1) {
+            localStorage.setItem("totalOrders", JSON.stringify([]))
+        } else {
+            console.log("totalOrders: " + totalOrders.length)
+            console.log(totalOrders)
+            totalOrders.splice(orderNum - 1, 1)
+            console.log("after slice: " + totalOrders.length)
+            console.log(totalOrders)
+            localStorage.setItem("totalOrders", JSON.stringify(totalOrders))
+        }
+        allOrders()
+    }
+}
+
+function removeAllOrders() {
+    if (confirm("Xóa tất cả đơn hàng?")) {
+        localStorage.setItem("totalOrders", JSON.stringify([]));
+        document.getElementById("table-body").innerHTML = '';
+        document.getElementById("totalQuantity").innerHTML = 0
+        document.getElementById("totalPrice").innerHTML = 0
+    }
+}
+
+function orderDetail(orderNum) {
+    console.log("orderDetail!")
+
+    document.getElementById("myModalTitle2").innerHTML = "Chi tiết đơn hàng " + orderNum;
+    // document.getElementById("modalBody2").innerHTML = 
+}
+
