@@ -1,0 +1,13 @@
+.custom_pink {
+    color: rgb(185, 76, 94)
+}
+
+.center {
+    margin: auto;
+    text-align: center;
+    padding: 10px;
+}
+
+.detail_font {
+    font-size: 12px;
+}
